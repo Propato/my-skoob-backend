@@ -1,0 +1,22 @@
+services:
+  skoob:
+    build: ./app
+    container_name: skoob
+    command: ["runserver", "0.0.0.0:8080"]
+    volumes:
+      - ./app:/app
+      - ./data/web/static:/data/web/static/
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    depends_on:
+      - psql
+
+  psql:
+    image: postgres:13-alpine
+    container_name: psql
+    volumes:
+      - ./data/postgres/data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
