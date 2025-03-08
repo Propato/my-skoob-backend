@@ -1,0 +1,42 @@
+services:
+  skoob:
+    build: ./app
+    container_name: skoob
+    command: ["runserver", "0.0.0.0:8080"]
+    volumes:
+      - ./app:/app
+      - ./data/web/static:/data/web/static/
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    depends_on:
+      - psql
+
+  psql:
+    image: postgres:13-alpine
+    container_name: psql
+    volumes:
+      - ./data/postgres/data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    ports:
+      - "5432:5432"
+
+  # pgadmin: # Falta configurar dentro do pgadmin -> https://www.youtube.com/watch?v=qECVC6t_2mU
+  #   container_name: pgadmin
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "8888:80"
+  #     - "5050:5050"
+
+  # adminer:
+  #   container_name: adminer
+  #   image: adminer:latest
+  #   environment:
+  #       - ADMINER_DEFAULT_SERVER=psql
+  #   ports:
+  #       - "4040:8080"
