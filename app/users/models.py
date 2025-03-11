@@ -1,6 +1,6 @@
-from django.db import models
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.db import models
 from datetime import date
 
 class Users(models.Model):
@@ -13,17 +13,8 @@ class Users(models.Model):
                 params={'value': value},
             )
     
-    def validate_email(value, instance=None):
-        if instance and instance.email == value:
-            return
-        if Users.objects.filter(email=value).exists():
-            raise ValidationError(
-                _("This email has already been registered"),
-                params={'value': value},
-            )
-        
     name = models.CharField(max_length=50)
-    email = models.EmailField(max_length=60, validators=[validate_email])
+    email = models.EmailField(max_length=60, unique=True)
     password = models.CharField(max_length=200)
 
     GENDERS = [
@@ -44,11 +35,6 @@ class Users(models.Model):
             return 0
         today = date.today()
         return today.year - self.birthday.year - ((today.month, today.day) < (self.birthday.month, self.birthday.day))
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['email'], name='unique_email', violation_error_message=_("This email has already been registered"))
-        ]
 
     def __str__(self):
         return f'{self.name}, {self.years}'
