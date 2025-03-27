@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Users
-from .serializer import UsersSerializer
+from .serializers import UsersSerializer
 
 @api_view(["GET"])
 def get_all_users(request):

@@ -25,9 +25,9 @@ class Users(models.Model):
         ("N", "Non-Binary"),
         ("O", "Others"),
     ]
-    gender = models.CharField(max_length=2, choices=GENDERS, blank=True)
+    gender = models.CharField(max_length=2, choices=GENDERS, null=True)
     
-    birthday = models.DateField(blank=True, null=True, validators=[validate_birthday])
+    birthday = models.DateField(null=True, validators=[validate_birthday])
 
     @property
     def years(self):

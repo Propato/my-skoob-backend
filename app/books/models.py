@@ -1,30 +1,30 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
+from django.utils.translation import gettext_lazy as _
 
 from users.models import Users
 
 # Create your models here.
-class Book(models.Model):
+class Books(models.Model):
     name = models.CharField(max_length=50)
     author = models.CharField(max_length=50)
-    pages = models.IntegerField(blank=True)
-    release = models.DateField(blank=True)
+    pages = models.IntegerField(null=True)
+    release = models.DateField(null=True)
     validate = models.BooleanField(default=False)
-
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['name', 'author'], name='unique_book', violation_error_message="This book has already been registered")
+            models.UniqueConstraint(fields=['name', 'author'], name='unique_book', violation_error_message=_("This book has already been registered"))
         ]
 
     def __str__(self):
         return f'{self.author}:{self.name}:{self.release} - {self.validate}'
 
-class Review(models.Model):
-    userId = models.ForeignKey(Users, on_delete=models.CASCADE)
-    bookId = models.ForeignKey(Book, on_delete=models.CASCADE)
+class Reviews(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    book = models.ForeignKey(Books, on_delete=models.CASCADE)
     
-    stars = models.IntegerField(blank=True, validators=[MaxValueValidator(100)])
-    comment = models.CharField(max_length=300, blank=True)
+    stars = models.IntegerField(null=True, validators=[MaxValueValidator(100)])
+    comment = models.CharField(max_length=300, null=True)
 
     STATUS = [
         (0, "Read"),
@@ -32,12 +32,12 @@ class Review(models.Model):
         (2, "Drop"),
         (3, "List"),
     ]
-    status = models.IntegerField(choices=STATUS)
+    status = models.IntegerField(choices=STATUS, default=3)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['userId', 'bookId'], name='unique_user_review_per_book', violation_error_message="User has already made a review for this book")
+            models.UniqueConstraint(fields=['user', 'book'], name='unique_user_review_per_book', violation_error_message=_("User has already made a review for this book"))
         ]
 
     def __str__(self):
-        return f'[{self.userId}]:[{self.bookId}]\n\t{self.get_status_display()} - {self.stars} - {self.comment}'
+        return f'[{self.user}]:[{self.book}]\n\t{self.get_status_display()} - {self.stars} - {self.comment}'
