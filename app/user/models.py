@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from datetime import date
 
-class Users(models.Model):
+class User(models.Model):
     def validate_birthday(value):
         today = date.today()
         min_age_date = date(today.year - 12, today.month, today.day)

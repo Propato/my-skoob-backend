@@ -2,14 +2,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Users
-from .serializers import UsersSerializer
+from .models import User
+from .serializers import UserSerializer
 
 @api_view(["GET"])
 def get_all_users(request):
     try:
-        users = Users.objects.all()
-        serializer = UsersSerializer(users, many=True)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -17,7 +17,7 @@ def get_all_users(request):
 @api_view(["POST"])
 def create_user(request):
     try:
-        serializer = UsersSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -28,7 +28,7 @@ def create_user(request):
 
 def update_user(data, user):
     try:
-        serializer = UsersSerializer(user, data=data)
+        serializer = UserSerializer(user, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -39,14 +39,14 @@ def update_user(data, user):
 @api_view(["GET", "PUT", "DELETE"])
 def user_details(request, id):
     try:
-        user = Users.objects.get(pk=id)
-    except Users.DoesNotExist:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     if request.method == 'GET':
-        return Response(UsersSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
     
     if request.method == "PUT":
         return update_user(request.data, user)

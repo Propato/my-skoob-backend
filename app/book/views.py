@@ -5,14 +5,14 @@ from rest_framework import status
 '''
 Books Functions
 '''
-from .models import Books
-from .serializers import BooksSerializer
+from .models import Book
+from .serializers import BookSerializer
 
 @api_view(["GET"])
 def get_all_books(request):
     try:
-        books = Books.objects.all()
-        serializer = BooksSerializer(books, many=True)
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -20,7 +20,7 @@ def get_all_books(request):
 @api_view(["POST"])
 def create_book(request):
     try:
-        serializer = BooksSerializer(data=request.data)
+        serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -31,7 +31,7 @@ def create_book(request):
 
 def update_book(data, book):
     try:
-        serializer = BooksSerializer(book, data=data)
+        serializer = BookSerializer(book, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -42,14 +42,14 @@ def update_book(data, book):
 @api_view(["GET", "PUT", "DELETE"])
 def book_details(request, id):
     try:
-        book = Books.objects.get(pk=id)
-    except Books.DoesNotExist:
+        book = Book.objects.get(pk=id)
+    except Book.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     if request.method == 'GET':
-        return Response(BooksSerializer(book).data, status=status.HTTP_200_OK)
+        return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
     
     if request.method == "PUT":
         return update_book(request.data, book)
@@ -64,14 +64,14 @@ def book_details(request, id):
 '''
 Reviews Functions
 '''
-from .models import Reviews
-from .serializers import ReviewsSerializer
+from .models import Review
+from .serializers import ReviewSerializer
 
 @api_view(["GET"])
 def get_all_reviews(request):
     try:
-        reviews = Reviews.objects.all()
-        serializer = ReviewsSerializer(reviews, many=True)
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -79,7 +79,7 @@ def get_all_reviews(request):
 @api_view(["POST"])
 def create_review(request):
     try:
-        serializer = ReviewsSerializer(data=request.data)
+        serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -90,7 +90,7 @@ def create_review(request):
 
 def update_review(data, review):
     try:
-        serializer = ReviewsSerializer(review, data=data)
+        serializer = ReviewSerializer(review, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -101,14 +101,14 @@ def update_review(data, review):
 @api_view(["GET", "PUT", "DELETE"])
 def review_details(request, id):
     try:
-        review = Reviews.objects.get(pk=id)
-    except Reviews.DoesNotExist:
+        review = Review.objects.get(pk=id)
+    except Review.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     if request.method == 'GET':
-        return Response(ReviewsSerializer(review).data, status=status.HTTP_200_OK)
+        return Response(ReviewSerializer(review).data, status=status.HTTP_200_OK)
     
     if request.method == "PUT":
         return update_review(request.data, review)

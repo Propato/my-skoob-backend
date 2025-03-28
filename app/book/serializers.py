@@ -1,11 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from .models import Books, Reviews
+from .models import Book, Review
 
-class BooksSerializer(serializers.ModelSerializer):
+class BookSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Books
+        model = Book
         fields = '__all__'
     
     def validate(self, attrs):
@@ -15,15 +15,15 @@ class BooksSerializer(serializers.ModelSerializer):
         if self.instance and self.instance.name == name and self.instance.author == author:
             return attrs
 
-        if Books.objects.filter(name=name, author=author).exists():
+        if Book.objects.filter(name=name, author=author).exists():
             raise ValidationError(
                 _("This book has already been registered")
             )
         return attrs
 
-class ReviewsSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Reviews
+        model = Review
         fields = '__all__'
     
     def validate(self, attrs):
@@ -33,7 +33,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         if self.instance and self.instance.user == user and self.instance.book == book:
             return attrs
 
-        if Reviews.objects.filter(user=user, book=book).exists():
+        if Review.objects.filter(user=user, book=book).exists():
             raise ValidationError(
                 _("User has already made a review for this book"),
                 params={'value': [user, book]}
