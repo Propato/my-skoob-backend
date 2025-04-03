@@ -1,20 +1,26 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import User
+from .permissions import IsAdminUser
+
+from .models import UserProfile
 from .serializers import UserSerializer
 
 @api_view(["GET"])
+# @permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def get_all_users(request):
     try:
-        users = User.objects.all()
+        users = UserProfile.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def create_user(request):
     try:
         serializer = UserSerializer(data=request.data)
@@ -37,10 +43,11 @@ def update_user(data, user):
         return Response({"errors": f'{e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET", "PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
 def user_details(request, id):
     try:
-        user = User.objects.get(pk=id)
-    except User.DoesNotExist:
+        user = UserProfile.objects.get(pk=id)
+    except UserProfile.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

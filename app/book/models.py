@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 
-from user.models import User
+from user.models import UserProfile
 
 # Create your models here.
 class Book(models.Model):
@@ -20,7 +20,7 @@ class Book(models.Model):
         return f'{self.author}:{self.name}:{self.release} - {self.validate}'
 
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     
     stars = models.IntegerField(null=True, validators=[MaxValueValidator(100)])

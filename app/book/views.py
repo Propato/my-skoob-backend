@@ -1,6 +1,9 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+from user.permissions import IsAdminUser, IsAdminUserOrIsGet
 
 '''
 Books Functions
@@ -9,6 +12,7 @@ from .models import Book
 from .serializers import BookSerializer
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_all_books(request):
     try:
         books = Book.objects.all()
@@ -18,6 +22,7 @@ def get_all_books(request):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
+@permission_classes([IsAdminUser])
 def create_book(request):
     try:
         serializer = BookSerializer(data=request.data)
@@ -40,6 +45,7 @@ def update_book(data, book):
         return Response({"errors": f'{e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET", "PUT", "DELETE"])
+@permission_classes([IsAdminUserOrIsGet])
 def book_details(request, id):
     try:
         book = Book.objects.get(pk=id)
@@ -68,6 +74,7 @@ from .models import Review
 from .serializers import ReviewSerializer
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_all_reviews(request):
     try:
         reviews = Review.objects.all()
@@ -77,6 +84,7 @@ def get_all_reviews(request):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_review(request):
     try:
         serializer = ReviewSerializer(data=request.data)
@@ -99,6 +107,7 @@ def update_review(data, review):
         return Response({"errors": f'{e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET", "PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
 def review_details(request, id):
     try:
         review = Review.objects.get(pk=id)
