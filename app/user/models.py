@@ -20,14 +20,12 @@ class CustomAccountManager(BaseUserManager):
         return self.create_user(name, email, password, **other_fields)
     
     def create_user(self, name, email, password, **other_fields):
-        if not email:
-            raise ValueError('Users must have an email address')
-        
         email = self.normalize_email(email)
         user = self.model(name=name, email=email, **other_fields)
 
         user.set_password(password)
         user.save()
+
         return user
         
 class UserProfile(AbstractBaseUser, PermissionsMixin):
@@ -42,7 +40,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     
     name = models.CharField(max_length=50)
     email = models.EmailField(max_length=60, unique=True)
-    # password = models.CharField(max_length=200)
+
+    profile_picture = models.ImageField(upload_to='profile_pictures', null=True, blank=True)
 
     GENDERS = [
         ("FC", "Female Cis"),
@@ -52,12 +51,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         ("N", "Non-Binary"),
         ("O", "Others"),
     ]
-    gender = models.CharField(max_length=2, choices=GENDERS, null=True)
+    gender = models.CharField(max_length=2, choices=GENDERS, null=True, blank=True)
     
-    birthday = models.DateField(null=True, validators=[validate_birthday])
+    birthday = models.DateField(null=True, blank=True, validators=[validate_birthday])
 
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     @property
     def years(self):
@@ -73,19 +72,3 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return f'{self.name}, {self.years}'
     
     objects = CustomAccountManager()
-
-    # groups = models.ManyToManyField(
-    #     'auth.Group',
-    #     related_name='skoobuser_groups',
-    #     blank=True,
-    #     help_text=_('The groups this user belongs to.'),
-    #     verbose_name=_('groups'),
-    # )
-    # user_permissions = models.ManyToManyField(
-    #     'auth.Permission',
-    #     related_name='skoobuser_permissions',
-    #     blank=True,
-    #     help_text=_('Specific permissions for this user.'),
-    #     verbose_name=_('user permissions'),
-    # )
-    
