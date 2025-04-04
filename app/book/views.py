@@ -1,9 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-
-from user.permissions import IsAdminUser, IsAdminUserOrIsGet
 
 '''
 Books Functions
@@ -22,7 +20,7 @@ def get_all_books(request):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["POST"])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_book(request):
     try:
         serializer = BookSerializer(data=request.data)
@@ -45,7 +43,7 @@ def update_book(data, book):
         return Response({"errors": f'{e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET", "PUT", "DELETE"])
-@permission_classes([IsAdminUserOrIsGet])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def book_details(request, id):
     try:
         book = Book.objects.get(pk=id)
