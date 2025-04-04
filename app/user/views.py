@@ -9,8 +9,9 @@ from .models import UserProfile
 from .serializers import UserSerializer
 
 @api_view(["GET"])
-# @permission_classes([IsAdminUser])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
 def get_all_users(request):
     try:
         users = UserProfile.objects.all()
@@ -25,6 +26,8 @@ def get_all_users(request):
 @permission_classes([AllowAny])
 def create_user(request):
     try:
+        if not request.data: return Response({"errors": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+
         request.data['is_staff'] = False
         request.data['is_superuser'] = False
 
@@ -43,16 +46,18 @@ def create_user(request):
 @permission_classes([AllowAny])
 def login_user(request):
     try:
+        if not request.data: return Response({"errors": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+
         user = UserProfile.objects.get(email=request.data['email'])
 
         if not user.check_password(request.data['password']):
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         token, created = Token.objects.get_or_create(user=user)
         return Response({"token": token.key}, status=status.HTTP_200_OK)
     
     except UserProfile.DoesNotExist:
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -80,6 +85,7 @@ def user_details(request):
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
         if request.method == "PUT":
+            if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
             return update_user(request.data, user)
 
         if request.method == "DELETE":
@@ -87,7 +93,7 @@ def user_details(request):
                 return Response(status=status.HTTP_204_NO_CONTENT)
     
     except UserProfile.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

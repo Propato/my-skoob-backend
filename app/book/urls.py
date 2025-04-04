@@ -12,8 +12,8 @@ urlpatterns = [
     
     # Reviews routes
     path('reviews/', get_all_reviews, name='get_all_reviews'),
-    path('review/create/', create_review, name='create_review'),
-    path('review/<int:id>/', review_details, name='review_details'), # Get Review, Update Review, Delete Review
+    path('reviews/create/', create_review, name='create_review'),
+    path('reviews/<int:id>/', review_details, name='review_details'), # Get Review, Update Review, Delete Review
 
-    path('review/admin/', reviewAdmin.urls),
+    path('reviews/admin/', reviewAdmin.urls),
 ]

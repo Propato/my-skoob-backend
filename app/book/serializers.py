@@ -16,15 +16,29 @@ class BookSerializer(serializers.ModelSerializer):
             return attrs
 
         if Book.objects.filter(name=name, author=author).exists():
-            raise ValidationError(
-                _("This book has already been registered")
-            )
+            raise ValidationError({
+                "Book": _("This book has already been registered"),
+            })
         return attrs
 
 class ReviewSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='get_status_display')
+
     class Meta:
         model = Review
         fields = '__all__'
+
+    def validate_status(self, value):
+        if value.isdigit():
+            value = int(value)
+            if value not in dict(Review.STATUS).keys():
+                raise serializers.ValidationError("Invalid status value.")
+            return value
+
+        status_map = {v: k for k, v in Review.STATUS}
+        if value not in status_map:
+            raise serializers.ValidationError("Invalid status value.")
+        return status_map[value]
     
     def validate(self, attrs):
         user = attrs.get('user')
@@ -34,8 +48,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             return attrs
 
         if Review.objects.filter(user=user, book=book).exists():
-            raise ValidationError(
-                _("User has already made a review for this book"),
-                params={'value': [user, book]}
-            )
+            raise ValidationError({
+                "Review": _("User has already made a review for this book")
+            })
         return attrs
