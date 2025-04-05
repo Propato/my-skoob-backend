@@ -26,7 +26,7 @@ def get_all_users(request):
 @permission_classes([AllowAny])
 def create_user(request):
     try:
-        if not request.data: return Response({"errors": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
         request.data['is_staff'] = False
         request.data['is_superuser'] = False
@@ -46,7 +46,7 @@ def create_user(request):
 @permission_classes([AllowAny])
 def login_user(request):
     try:
-        if not request.data: return Response({"errors": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
         user = UserProfile.objects.get(email=request.data['email'])
 
