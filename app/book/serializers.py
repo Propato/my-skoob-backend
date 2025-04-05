@@ -22,24 +22,12 @@ class BookSerializer(serializers.ModelSerializer):
         return attrs
 
 class ReviewSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status_display')
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Review
         fields = '__all__'
 
-    def validate_status(self, value):
-        if value.isdigit():
-            value = int(value)
-            if value not in dict(Review.STATUS).keys():
-                raise serializers.ValidationError("Invalid status value.")
-            return value
-
-        status_map = {v: k for k, v in Review.STATUS}
-        if value not in status_map:
-            raise serializers.ValidationError("Invalid status value.")
-        return status_map[value]
-    
     def validate(self, attrs):
         user = attrs.get('user')
         book = attrs.get('book')
