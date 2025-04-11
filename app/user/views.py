@@ -40,7 +40,7 @@ def create_user(request):
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -54,8 +54,8 @@ def login_user(request):
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_200_OK)
-    
+        return Response({"token": token.key, "user": UserSerializer(user).data}, status=status.HTTP_200_OK)
+
     except UserProfile.DoesNotExist:
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
@@ -80,7 +80,7 @@ def update_user(data, user):
 def user_details(request):
     try:
         user = UserProfile.objects.get(email=request.user.email)
-    
+
         if request.method == 'GET':
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
@@ -91,7 +91,7 @@ def user_details(request):
         if request.method == "DELETE":
                 user.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     except UserProfile.DoesNotExist:
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
