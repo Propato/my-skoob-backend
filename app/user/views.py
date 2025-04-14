@@ -30,12 +30,16 @@ def create_user(request):
 
         request.data['is_staff'] = False
         request.data['is_superuser'] = False
+        request.data['email'] = request.data['email'].lower()
 
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            user = UserProfile.objects.get(email=request.data['email'])
+            token, created = Token.objects.get_or_create(user=user)
+
+            return Response({"token": token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(f"{str(e)}")
@@ -48,6 +52,7 @@ def login_user(request):
     try:
         if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
+        request.data['email'] = request.data['email'].lower()
         user = UserProfile.objects.get(email=request.data['email'])
 
         if not user.check_password(request.data['password']):
@@ -66,6 +71,7 @@ def login_user(request):
 def update_user(data, user):
     data['is_staff'] = False
     data['is_superuser'] = False
+    # data['password'] = user.password
 
     serializer = UserSerializer(user, data=data)
     if serializer.is_valid():
@@ -79,6 +85,7 @@ def update_user(data, user):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def user_details(request):
     try:
+        request.user.email = request.user.email.lower()
         user = UserProfile.objects.get(email=request.user.email)
 
         if request.method == 'GET':

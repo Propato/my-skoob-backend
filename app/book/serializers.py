@@ -7,15 +7,15 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = '__all__'
-    
+
     def validate(self, attrs):
-        name = attrs.get('name')
+        title = attrs.get('title')
         author = attrs.get('author')
 
-        if self.instance and self.instance.name == name and self.instance.author == author:
+        if self.instance and self.instance.title == title and self.instance.author == author:
             return attrs
 
-        if Book.objects.filter(name=name, author=author).exists():
+        if Book.objects.filter(title=title, author=author).exists():
             raise ValidationError({
                 "Book": _("This book has already been registered"),
             })

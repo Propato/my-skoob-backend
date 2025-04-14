@@ -1,10 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-
-from .permissions import IsAdminUserOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
+
+from .permissions import IsAdminUserOrReadOnly
 
 '''
 Books Functions
@@ -17,6 +18,25 @@ from .serializers import BookSerializer
 def get_all_books(request):
     try:
         books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(f"{str(e)}")
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def search_books(request):
+    try:
+        query = request.GET.get('query', '')
+
+        if query:
+            books = Book.objects.filter(
+                Q(title__icontains=query) | Q(author__icontains=query)
+            )
+        else:
+            books = Book.objects.all()
+
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
@@ -38,7 +58,7 @@ def create_book(request):
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 
 def update_book(data, book):
     try:
@@ -57,7 +77,7 @@ def update_book(data, book):
 def book_details(request, id):
     try:
         book = Book.objects.get(pk=id)
-    
+
         if request.method == 'GET':
             return Response(BookSerializer(book).data, status=status.HTTP_200_OK)
 
@@ -68,7 +88,7 @@ def book_details(request, id):
         if request.method == "DELETE":
             book.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     except Book.DoesNotExist:
         return Response({"detail": "Invalid book id"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
@@ -93,7 +113,7 @@ def get_all_reviews(request):
         reviews = Review.objects.filter(user=user.id)
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     except UserProfile.DoesNotExist:
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
@@ -111,7 +131,7 @@ def create_review(request):
         if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
         request.data['user'] = user.id
-        
+
         Book.objects.get(id=request.data['book']) # Verifies that the book exists
 
         serializer = ReviewSerializer(data=request.data)
@@ -119,7 +139,7 @@ def create_review(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     except Book.DoesNotExist:
         return Response({"detail": "Invalid book id"}, status=status.HTTP_404_NOT_FOUND)
     except UserProfile.DoesNotExist:
@@ -127,7 +147,7 @@ def create_review(request):
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 
 def update_review(data, review):
     try:
@@ -149,10 +169,10 @@ def review_details(request, id):
         user = UserProfile.objects.get(email=request.user.email)
 
         review = Review.objects.get(id=id, user=user.id)
-        
+
         if request.method == 'GET':
             return Response(ReviewSerializer(review).data, status=status.HTTP_200_OK)
-    
+
         if request.method == "PUT":
             if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
             request.data["user"] = user.id
@@ -162,7 +182,7 @@ def review_details(request, id):
         if request.method == "DELETE":
             review.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     except UserProfile.DoesNotExist:
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Review.DoesNotExist:

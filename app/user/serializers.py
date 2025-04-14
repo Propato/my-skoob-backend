@@ -7,11 +7,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
-        extra_kwargs = { "password": { "write_only": True }}
+        # extra_kwargs = { "password": { "write_only": True }}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Optional password in update
+        if self.instance:
+            self.fields['password'].required = False
 
     def create(self, validated_data):
         return UserProfile.objects.create_user(**validated_data)
-    
+
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
         if password:
@@ -28,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-    
+
     def validate_password(self, password):
         try:
             validate_password(password)
