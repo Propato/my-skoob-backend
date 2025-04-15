@@ -16,9 +16,9 @@ def validate_release_year(value):
 
 # Create your models here.
 class Book(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=120)
     overview = models.CharField(max_length=300)
-    author = models.CharField(max_length=50)
+    author = models.CharField(max_length=80)
     pages = models.IntegerField(null=True)
     release_year = models.IntegerField(
         null=True,
