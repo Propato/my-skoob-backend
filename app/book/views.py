@@ -30,12 +30,11 @@ def search_books(request):
     try:
         query = request.GET.get('query', '')
 
+        books = Book.objects.all()
         if query:
-            books = Book.objects.filter(
+            books = books.filter(
                 Q(title__icontains=query) | Q(author__icontains=query)
             )
-        else:
-            books = Book.objects.all()
 
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -108,31 +107,45 @@ from user.models import UserProfile
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def get_all_reviews(request):
     try:
-        user = UserProfile.objects.get(email=request.user.email)
-
-        reviews = Review.objects.filter(user=user.id)
+        reviews = Review.objects.filter(user__id=request.user.id)
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    except UserProfile.DoesNotExist:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+def search_reviews(request):
+    try:
+        userId = request.user.id
+        query = request.GET.get('query', '')
+
+        reviews = Review.objects.filter(user__id=userId)
+
+        if query:
+            reviews = reviews.filter(
+                Q(book__title__icontains=query) | Q(book__author__icontains=query)
+            )
+
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(str(e))
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def create_review(request):
     try:
-
-        user = UserProfile.objects.get(email=request.user.email)
-
         if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.data['user'] = user.id
-
-        Book.objects.get(id=request.data['book']) # Verifies that the book exists
+        request.data['user_id'] = request.user.id
+        request.data['user'] = request.user.id
 
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
@@ -140,10 +153,6 @@ def create_review(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    except Book.DoesNotExist:
-        return Response({"detail": "Invalid book id"}, status=status.HTTP_404_NOT_FOUND)
-    except UserProfile.DoesNotExist:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -165,26 +174,21 @@ def update_review(data, review):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def review_details(request, id):
     try:
-
-        user = UserProfile.objects.get(email=request.user.email)
-
-        review = Review.objects.get(id=id, user=user.id)
+        review = Review.objects.get(id=id, user__id=request.user.id)
 
         if request.method == 'GET':
             return Response(ReviewSerializer(review).data, status=status.HTTP_200_OK)
 
         if request.method == "PUT":
             if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
-            request.data["user"] = user.id
-            request.data["book"] = review.book.id
+            request.data["user_id"] = request.user.id
+            request.data["book_id"] = review.book.id
             return update_review(request.data, review)
 
         if request.method == "DELETE":
             review.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    except UserProfile.DoesNotExist:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     except Review.DoesNotExist:
         return Response({"detail": "Invalid review id"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
