@@ -182,6 +182,7 @@ def review_details(request, id):
         if request.method == "PUT":
             if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
             request.data["user_id"] = request.user.id
+            request.data["user"] = request.user.id
             request.data["book_id"] = review.book.id
             return update_review(request.data, review)
 
