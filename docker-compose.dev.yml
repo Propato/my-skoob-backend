@@ -23,24 +23,24 @@ services:
     ports:
       - "5432:5432"
 
-  pgadmin: # Falta configurar dentro do pgadmin -> https://www.youtube.com/watch?v=qECVC6t_2mU
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "8888:80"
-      - "5050:5050"
-    depends_on:
-      - psql
+  # pgadmin: # Falta configurar dentro do pgadmin -> https://www.youtube.com/watch?v=qECVC6t_2mU
+  #   container_name: pgadmin
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "8888:80"
+  #     - "5050:5050"
+  #   depends_on:
+  #     - psql
 
-  adminer:
-    container_name: adminer
-    image: adminer:latest
-    environment:
-      - ADMINER_DEFAULT_SERVER=psql
-    ports:
-      - "4040:4000"
-    depends_on:
-      - psql
+  # adminer:
+  #   container_name: adminer
+  #   image: adminer:latest
+  #   environment:
+  #     - ADMINER_DEFAULT_SERVER=psql
+  #   ports:
+  #     - "4040:4000"
+  #   depends_on:
+  #     - psql
