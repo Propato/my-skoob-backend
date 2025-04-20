@@ -16,6 +16,7 @@ COLUMNS=1
 PS3=$'\nSelect: '
 select OPTIONS in \
     "Start Server" \
+    "Run Tests" \
     "Create Super User" \
     "Stop Server" \
     "Show Logs" \
@@ -33,6 +34,16 @@ case $OPTIONS in
         echo ""
 
         echo "Server Running..."
+        read -p "[Press Enter to Close]"
+        clear
+        COLUMNS=1
+        ;;
+
+    "Run Tests")
+        clear
+        sudo docker container exec -it $CONTAINER_PYTHON python3 manage.py test
+        echo ""
+
         read -p "[Press Enter to Close]"
         clear
         COLUMNS=1
