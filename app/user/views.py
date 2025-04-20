@@ -1,4 +1,8 @@
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.models import Token
@@ -7,6 +11,7 @@ from rest_framework import status
 
 from .models import UserProfile
 from .serializers import UserSerializer
+
 
 @api_view(["GET"])
 # @permission_classes([AllowAny])
@@ -26,11 +31,12 @@ def get_all_users(request):
 @permission_classes([AllowAny])
 def create_user(request):
     try:
-        if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.data:
+            return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.data['is_staff'] = False
-        request.data['is_superuser'] = False
-        request.data['email'] = request.data['email'].lower()
+        request.data["is_staff"] = False
+        request.data["is_superuser"] = False
+        request.data["email"] = request.data["email"].lower()
 
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -47,27 +53,35 @@ def create_user(request):
 @permission_classes([AllowAny])
 def login_user(request):
     try:
-        if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.data:
+            return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.data['email'] = request.data['email'].lower()
-        user = UserProfile.objects.get(email=request.data['email'])
+        request.data["email"] = request.data["email"].lower()
+        user = UserProfile.objects.get(email=request.data["email"])
 
-        if not user.check_password(request.data['password']):
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not user.check_password(request.data["password"]):
+            return Response(
+                {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         token, created = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key, "user": UserSerializer(user).data}, status=status.HTTP_200_OK)
+        return Response(
+            {"token": token.key, "user": UserSerializer(user).data},
+            status=status.HTTP_200_OK,
+        )
 
     except UserProfile.DoesNotExist:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def update_user(data, user):
-    data['is_staff'] = False
-    data['is_superuser'] = False
+    data["is_staff"] = False
+    data["is_superuser"] = False
     # data['password'] = user.password
 
     serializer = UserSerializer(user, data=data)
@@ -77,6 +91,7 @@ def update_user(data, user):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -85,19 +100,24 @@ def user_details(request):
         request.user.email = request.user.email.lower()
         user = UserProfile.objects.get(email=request.user.email)
 
-        if request.method == 'GET':
+        if request.method == "GET":
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
         if request.method == "PUT":
-            if not request.data: return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
+            if not request.data:
+                return Response(
+                    {"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST
+                )
             return update_user(request.data, user)
 
         if request.method == "DELETE":
-                user.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     except UserProfile.DoesNotExist:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
     except Exception as e:
         print(f"{str(e)}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

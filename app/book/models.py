@@ -5,14 +5,17 @@ from django.utils.translation import gettext_lazy as _
 
 from user.models import UserProfile
 
+
 def validate_release_year(value):
     from datetime import date
+
     current_year = date.today().year
     if value > current_year:
         raise ValidationError(
-            _(f'Please enter a year before {current_year}.'),
-            params={'value': value},
+            _(f"Please enter a year before {current_year}."),
+            params={"value": value},
         )
+
 
 # Create your models here.
 class Book(models.Model):
@@ -26,13 +29,19 @@ class Book(models.Model):
         validators=[validate_release_year],
     )
     validate = models.BooleanField(default=False)
+
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['title', 'author'], name='unique_book', violation_error_message=_("This book has already been registered"))
+            models.UniqueConstraint(
+                fields=["title", "author"],
+                name="unique_book",
+                violation_error_message=_("This book has already been registered"),
+            )
         ]
 
     def __str__(self):
-        return f'{self.author}:{self.title}:{self.release_year} - {self.validate}'
+        return f"{self.author}:{self.title}:{self.release_year} - {self.validate}"
+
 
 class Review(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -51,8 +60,14 @@ class Review(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'book'], name='unique_user_review_per_book', violation_error_message=_("User has already made a review for this book"))
+            models.UniqueConstraint(
+                fields=["user", "book"],
+                name="unique_user_review_per_book",
+                violation_error_message=_(
+                    "User has already made a review for this book"
+                ),
+            )
         ]
 
     def __str__(self):
-        return f'[{self.user}]:[{self.book}]\n\t{self.get_status_display()} - {self.stars} - {self.comment}'
+        return f"[{self.user}]:[{self.book}]\n\t{self.get_status_display()} - {self.stars} - {self.comment}"

@@ -2,10 +2,12 @@ from django.contrib import admin
 from .models import UserProfile
 from django.apps import apps
 
-class UserAdmin(admin.AdminSite):
-    site_header = 'User Admin Area'
 
-userAdmin = UserAdmin(name='UserAdmin')
+class UserAdmin(admin.AdminSite):
+    site_header = "User Admin Area"
+
+
+userAdmin = UserAdmin(name="UserAdmin")
 userAdmin.register(UserProfile)
 
 
