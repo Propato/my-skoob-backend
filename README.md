@@ -6,7 +6,7 @@ This application consists of a Restful API for CRUD and user login and CRUD of b
 
 ## Models
 
-### User
+### :bust_in_silhouette: User 
 
 |      Field      |      Type       | Required |    Default     |
 | :-------------: | :-------------: | :------: | :------------: |
@@ -17,7 +17,7 @@ This application consists of a Restful API for CRUD and user login and CRUD of b
 |    birthday     |      Date       |    NO    |       -        |
 |    is_staff     |     boolean     |   Yes    |     False      |
 
-### Book
+### :books: Book
 
 |    Field     |  Type   | Required |    Default     |
 | :----------: | :-----: | :------: | :------------: |
@@ -29,7 +29,7 @@ This application consists of a Restful API for CRUD and user login and CRUD of b
 | release_year | number  |    No    |       -        |
 |   validate   | boolean |   yes    |     False      |
 
-### Review
+### :memo: Review
 
 |     Field      |      Type      | Required |    Default     |
 | :------------: | :------------: | :------: | :------------: |
@@ -82,17 +82,18 @@ Now, just run:
 
 And you will see:
 
-<img alt="dev-menu" title="Menu" height="60" src="./assets/dev-menu.png">
+<img alt="dev-menu" title="Menu" height="300" src="./assets/dev-menu.png">
 
 > A set of useful options
 
 ## To Do
 
-- Learn more about Permissions and Group Tables to use in this project.
-- Update the Login:
-  - App for Authentication;
-  - SSO;
-  - Change default login for JWT or more advanced and temporary token.
-- Add documentation for endpoints.
+- [ ] Learn more about Permissions and Group Tables to use in this project;
+- [ ] Add missing tests;
+- [ ] Update the Login:
+  - [ ] App for Authentication;
+  - [ ] SSO;
+  - [ ] Change default login for JWT or more advanced and temporary token.
+- [ ] Add documentation for endpoints.
 
 <h6 align="center">by David Propato <a href="https://github.com/Propato">@Propato</a> </h6>
