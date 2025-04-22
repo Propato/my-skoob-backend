@@ -45,9 +45,17 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = "__all__"
+        fields = [
+            "id",
+            "book_id",
+            "book",
+            "user_id",
+            "status",
+            "status_display",
+            "stars",
+            "comment",
+        ]
         extra_kwargs = {
-            "user": {"write_only": True},
             "status": {"write_only": True},
         }
 

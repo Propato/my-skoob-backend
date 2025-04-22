@@ -115,8 +115,6 @@ Reviews Functions
 from .models import Review
 from .serializers import ReviewSerializer
 
-from user.models import UserProfile
-
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -137,10 +135,9 @@ def get_all_reviews(request):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def search_reviews(request):
     try:
-        userId = request.user.id
         query = request.GET.get("query", "")
 
-        reviews = Review.objects.filter(user__id=userId)
+        reviews = Review.objects.filter(user__id=request.user.id)
 
         if query:
             reviews = reviews.filter(
@@ -163,7 +160,6 @@ def create_review(request):
             return Response({"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST)
 
         request.data["user_id"] = request.user.id
-        request.data["user"] = request.user.id
 
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
@@ -204,7 +200,6 @@ def review_details(request, id):
                     {"detail": "No data"}, status=status.HTTP_400_BAD_REQUEST
                 )
             request.data["user_id"] = request.user.id
-            request.data["user"] = request.user.id
             request.data["book_id"] = review.book.id
             return update_review(request.data, review)
 

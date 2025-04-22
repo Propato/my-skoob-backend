@@ -22,7 +22,7 @@ class Book(models.Model):
     title = models.CharField(max_length=120)
     overview = models.CharField(max_length=300)
     author = models.CharField(max_length=80)
-    pages = models.IntegerField(null=True)
+    pages = models.IntegerField(null=True, blank=True)
     release_year = models.IntegerField(
         null=True,
         blank=True,
@@ -47,8 +47,10 @@ class Review(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
-    stars = models.IntegerField(null=True, validators=[MaxValueValidator(100)])
-    comment = models.CharField(max_length=300, null=True)
+    stars = models.IntegerField(
+        null=True, blank=True, validators=[MaxValueValidator(100)]
+    )
+    comment = models.CharField(max_length=300, null=True, blank=True)
 
     STATUS = [
         (0, "Read"),
